@@ -68,6 +68,38 @@ class filesystemExecutor extends Execution {
         });
 
         break;
+  
+      case 'mkdir':
+        let paths = [];
+        let createdFolders = [];
+        let notCreatedFolders = [];
+    
+        if (inputPath.constructor !== Array) {
+          paths = [inputPath];
+        } else {
+          paths = inputPath;
+        }
+    
+        async.each(paths, function(path, callback) {
+          fs.mkdirs(path, function (err) {
+            if (err) {
+              notCreatedFolders.push(path);
+              callback();
+            } else {
+              createdFolders.push(path);
+              callback();
+            }
+          });
+        }, function done(err) {
+          if (err) {
+            _endError(err);
+          } else if(notCreatedFolders) {
+            _endError(new Error(`Not created folders: ${notCreatedFolders}`));
+          } else {
+            _endSuccess(true);
+          }
+        });
+        break;
 
       default:
         _endError(`Not method found for ${operation}`);
