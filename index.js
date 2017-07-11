@@ -19,7 +19,12 @@ class filesystemExecutor extends Execution {
     let _this = this;
     let operation = params.operation;
     let inputPath = params.path;
-
+  
+    /**
+     * Avaliable operations
+     * - ls
+     * - mkdir
+     */
     switch (operation) {
       case 'ls':
         _curatePath(inputPath, function (err, curatedPaths) {
@@ -95,6 +100,9 @@ class filesystemExecutor extends Execution {
         });
         break;
 
+      case 'concat':
+        
+        break;
       default:
         _endError(`Not method found for ${operation}`);
     }
