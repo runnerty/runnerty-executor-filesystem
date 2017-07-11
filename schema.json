@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "@runnerty-executor-filesystem",
+  "definitions": {
+    "config": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "pattern": "@runnerty-executor-filesystem"
+        }
+      }
+    },
+    "params": {
+      "type": "object",
+      "required": [
+        "operation",
+        "path"
+      ],
+      "properties": {
+        "operation": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
