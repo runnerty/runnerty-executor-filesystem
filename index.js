@@ -3,17 +3,11 @@
 const fs = require('fs-extra');
 const glob = require('glob');
 const concat = require('concat-files');
-const p = require('path');
+const path = require('path');
 const async = require('async'); // <--- TEMP hasta migrar async/await
 
 var Execution = global.ExecutionClass;
 
-// Pruebas en local
-/*let operation = 'ls';
-let path = [
-    '/Users/rafaelprats/Desktop/test/!*.csv',
-    '/Users/rafaelprats/Desktop/test/folder?'
-];*/
 
 class filesystemExecutor extends Execution {
   constructor(process) {
@@ -24,29 +18,29 @@ class filesystemExecutor extends Execution {
 
     let _this = this;
     let operation = params.operation;
-    let path = params.path;
+    let inputPath = params.path;
 
     switch (operation) {
       case 'ls':
-        _curatePath(path, function (err, curatedPaths) {
+        _curatePath(inputPath, function (err, curatedPaths) {
           let resultFiles = [];
 
-          async.each(curatedPaths, function (path, callback) {
-            fs.stat(path, function (err, stats) {
+          async.each(curatedPaths, function (curatedPath, callback) {
+            fs.stat(curatedPath, function (err, stats) {
               if (err) {
                 callback(err);
               } else {
                 if (stats.isFile()) {
-                  resultFiles.push(path);
+                  resultFiles.push(curatedPath);
                   callback();
                 } else if (stats.isDirectory()) {
-                  _ls(path, function (err, files) {
+                  _ls(curatedPath, function (err, files) {
                     if (err) {
                       console.error(err);
                       callback(err);
                     } else {
                       resultFiles = resultFiles.concat(files.map(function (file) {
-                        return p.join(path, file);
+                        return path.join(curatedPath, file);
                       }));
                       callback();
                     }
@@ -116,8 +110,8 @@ class filesystemExecutor extends Execution {
         paths = path;
       }
 
-      async.each(paths, function (path, callback) {
-        glob(path, null, function (err, list) {
+      async.each(paths, function (p, callback) {
+        glob(p, null, function (err, list) {
           if (err) {
             callback(err);
           } else {
