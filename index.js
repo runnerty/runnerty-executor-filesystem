@@ -50,7 +50,10 @@ class filesystemExecutor extends Execution {
                       mtime: stats.mtime,
                       ctime: stats.ctime,
                       size: stats.size,
-                      sizeH: bytes(stats.size)
+                      sizeH: bytes(stats.size),
+                      isFile: true,
+                      isDirectory: false,
+                      exists: true
                     });
                     callback();
                   } else if (stats.isDirectory()) {
@@ -75,7 +78,10 @@ class filesystemExecutor extends Execution {
                                 mtime: stats.mtime,
                                 ctime: stats.ctime,
                                 size: stats.size,
-                                sizeH: bytes(stats.size)
+                                sizeH: bytes(stats.size),
+                                isFile: false,
+                                isDirectory: true,
+                                exists: true
                               });
                               callback();
                             }
@@ -135,7 +141,50 @@ class filesystemExecutor extends Execution {
           }
         });
         break;
-      
+  
+      case 'stat':
+        let pathsStats = [];
+    
+        if (inputPath.constructor !== Array) {
+          inputPath = [inputPath];
+        }
+    
+        async.each(inputPath, function(p, callback) {
+          fs.stat(p, function(err, stats) {
+            if (!err) {
+              pathsStats.push({
+                file: p.split(path.sep).pop(),
+                path: p,
+                mtimeMs: stats.mtimeMs,
+                atimeMs: stats.atimeMs,
+                ctimeMs: stats.ctimeMs,
+                atime: stats.atime,
+                mtime: stats.mtime,
+                ctime: stats.ctime,
+                size: stats.size,
+                sizeH: bytes(stats.size),
+                isFile: stats.isFile(),
+                isDirectory: stats.isDirectory(),
+                exists: true
+              });
+            } else {
+              pathsStats.push({
+                path: p,
+                exists: false
+              })
+            }
+            callback();
+          })
+        }, function(err) {
+          if (err) {
+            _endError(err);
+          } else {
+            _endSuccess(pathsStats);
+          }
+        });
+    
+        break;
+        
       default:
         _endError(`Not method found for ${operation}`);
     }
