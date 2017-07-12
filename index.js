@@ -4,6 +4,7 @@ const fs = require('fs-extra');
 const glob = require('glob');
 const concat = require('concat-files');
 const path = require('path');
+const bytes = require('bytes');
 const async = require('async'); // <--- TEMP hasta migrar async/await
 
 var Execution = global.ExecutionClass;
@@ -19,48 +20,78 @@ class filesystemExecutor extends Execution {
     let _this = this;
     let operation = params.operation;
     let inputPath = params.path;
-
+  
+    /**
+     * Avaliable operations
+     * - ls
+     * - mkdir
+     */
     switch (operation) {
       case 'ls':
-        _curatePath(inputPath, function (err, curatedPaths) {
-          let resultFiles = [];
-
-          async.each(curatedPaths, function (curatedPath, callback) {
-            fs.stat(curatedPath, function (err, stats) {
-              if (err) {
-                callback(err);
-              } else {
-                if (stats.isFile()) {
-                  resultFiles.push(curatedPath);
-                  callback();
-                } else if (stats.isDirectory()) {
-                  _ls(curatedPath, function (err, files) {
-                    if (err) {
-                      console.error(err);
-                      callback(err);
-                    } else {
-                      resultFiles = resultFiles.concat(files.map(function (file) {
-                        return path.join(curatedPath, file);
-                      }));
-                      callback();
-                    }
-                  })
+        _curatePath(inputPath, function(err, paths) {
+          if (err) {
+            _endError(err);
+          } else {
+            let resultFiles = [];
+            
+            async.each(paths, function (p, callback) {
+              fs.stat(p, function (err, stats) {
+                if (err) {
+                  callback(err);
                 } else {
-                  // TODO symbolic links and so...?
-                  callback();
+                  if (stats.isFile()) {
+                    resultFiles.push(p);
+                    callback();
+                  } else if (stats.isDirectory()) {
+                    _ls(p, function (err, files) {
+                      if (err) {
+                        callback(err);
+                      } else {
+                        async.each(files, function(file, callback) {
+                          let filePath = path.join(p, file);
+                      
+                          fs.stat(filePath, function(err, stats) {
+                            console.log(stats);
+                            if (err) {
+                              callback(err);
+                            } else {
+                              resultFiles.push({
+                                file: file,
+                                path: filePath,
+                                mtimeMs: stats.mtimeMs,
+                                atimeMs: stats.atimeMs,
+                                ctimeMs: stats.ctimeMs,
+                                atime: stats.atime,
+                                mtime: stats.mtime,
+                                ctime: stats.ctime,
+                                size: stats.size,
+                                sizeH: bytes(stats.size)
+                              });
+                              callback();
+                            }
+                          });
+                        }, function done(err) {
+                          callback(err);
+                        })
+                    
+                      }
+                    })
+                  } else {
+                    // TODO symbolic links and so...?
+                    callback();
+                  }
                 }
+              })
+          
+            }, function done(err) {
+              if (err) {
+                _endError(err);
+              } else {
+                _endSuccess(resultFiles);
               }
-            })
-
-          }, function done(err) {
-            if (err) {
-              _endError(err);
-            } else {
-              _endSuccess(resultFiles);
-            }
-          })
+            });
+          }
         });
-
         break;
   
       case 'mkdir':
@@ -94,7 +125,7 @@ class filesystemExecutor extends Execution {
           }
         });
         break;
-
+      
       default:
         _endError(`Not method found for ${operation}`);
     }
