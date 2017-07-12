@@ -40,7 +40,18 @@ class filesystemExecutor extends Execution {
                   callback(err);
                 } else {
                   if (stats.isFile()) {
-                    resultFiles.push(p);
+                    resultFiles.push({
+                      file: p.split(path.sep).pop(),
+                      path: p,
+                      mtimeMs: stats.mtimeMs,
+                      atimeMs: stats.atimeMs,
+                      ctimeMs: stats.ctimeMs,
+                      atime: stats.atime,
+                      mtime: stats.mtime,
+                      ctime: stats.ctime,
+                      size: stats.size,
+                      sizeH: bytes(stats.size)
+                    });
                     callback();
                   } else if (stats.isDirectory()) {
                     _ls(p, function (err, files) {
