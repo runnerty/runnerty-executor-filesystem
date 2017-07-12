@@ -190,9 +190,21 @@ class filesystemExecutor extends Execution {
 
     function _endSuccess(res) {
       let endOptions = {};
+      endOptions.extra_output = {};
       endOptions.data_output = res;
       _this.end(endOptions);
-      console.log(res)
+      if (res.length){
+        endOptions.extra_output.first_match_file  = res[0].file;
+        endOptions.extra_output.first_match_path  = res[0].path;
+        endOptions.extra_output.first_match_mtimeMs  = res[0].mtimeMs;
+        endOptions.extra_output.first_match_atimeMs  = res[0].atimeMs;
+        endOptions.extra_output.first_match_ctimeMs  = res[0].ctimeMs;
+        endOptions.extra_output.first_match_atime  = res[0].atime;
+        endOptions.extra_output.first_match_mtime  = res[0].mtime;
+        endOptions.extra_output.first_match_ctime  = res[0].ctime;
+        endOptions.extra_output.first_match_size  = res[0].size;
+        endOptions.extra_output.first_match_sizeH  = res[0].sizeH;
+      }
     }
   }
 }
