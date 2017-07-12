@@ -192,7 +192,6 @@ class filesystemExecutor extends Execution {
       let endOptions = {};
       endOptions.extra_output = {};
       endOptions.data_output = res;
-      _this.end(endOptions);
       if (res.length){
         endOptions.extra_output.first_match_file  = res[0].file;
         endOptions.extra_output.first_match_path  = res[0].path;
@@ -205,6 +204,7 @@ class filesystemExecutor extends Execution {
         endOptions.extra_output.first_match_size  = res[0].size;
         endOptions.extra_output.first_match_sizeH  = res[0].sizeH;
       }
+      _this.end(endOptions);
     }
   }
 }
