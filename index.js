@@ -51,7 +51,6 @@ class filesystemExecutor extends Execution {
                           let filePath = path.join(p, file);
                       
                           fs.stat(filePath, function(err, stats) {
-                            console.log(stats);
                             if (err) {
                               callback(err);
                             } else {
