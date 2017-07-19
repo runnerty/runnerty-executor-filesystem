@@ -165,12 +165,12 @@ class filesystemExecutor extends Execution {
                 sizeH: bytes(stats.size),
                 isFile: stats.isFile(),
                 isDirectory: stats.isDirectory(),
-                exists: true
+                exists: 1
               });
             } else {
               pathsStats.push({
                 path: p,
-                exists: false
+                exists: 0
               })
             }
             callback();
@@ -242,6 +242,7 @@ class filesystemExecutor extends Execution {
       endOptions.extra_output = {};
       endOptions.data_output = res;
       if (res.length){
+        endOptions.extra_output.first_match_exists  = res[0].exists;
         endOptions.extra_output.first_match_file  = res[0].file;
         endOptions.extra_output.first_match_path  = res[0].path;
         endOptions.extra_output.first_match_mtimeMs  = res[0].mtimeMs;
