@@ -20,6 +20,7 @@ class filesystemExecutor extends Execution {
     let _this = this;
     let operation = params.operation;
     let inputPath = params.path;
+    let insensitiveCase = params.insensitiveCase;
   
     /**
      * Avaliable operations
@@ -201,7 +202,7 @@ class filesystemExecutor extends Execution {
       }
 
       async.each(paths, function (p, callback) {
-        glob(p, null, function (err, list) {
+        glob(p, {nocase: insensitiveCase}, function (err, list) {
           if (err) {
             callback(err);
           } else {
