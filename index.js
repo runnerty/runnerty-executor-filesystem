@@ -51,9 +51,9 @@ class filesystemExecutor extends Execution {
                       ctime: stats.ctime,
                       size: stats.size,
                       sizeH: bytes(stats.size),
-                      isFile: true,
-                      isDirectory: false,
-                      exists: true
+                      isFile: 1,
+                      isDirectory: 0,
+                      exists: 1
                     });
                     callback();
                   } else if (stats.isDirectory()) {
@@ -79,9 +79,9 @@ class filesystemExecutor extends Execution {
                                 ctime: stats.ctime,
                                 size: stats.size,
                                 sizeH: bytes(stats.size),
-                                isFile: false,
-                                isDirectory: true,
-                                exists: true
+                                isFile: 0,
+                                isDirectory: 1,
+                                exists: 1
                               });
                               callback();
                             }
@@ -163,8 +163,8 @@ class filesystemExecutor extends Execution {
                 ctime: stats.ctime,
                 size: stats.size,
                 sizeH: bytes(stats.size),
-                isFile: stats.isFile(),
-                isDirectory: stats.isDirectory(),
+                isFile: stats.isFile() ? 1 : 0,
+                isDirectory: stats.isDirectory() ? 1 : 0,
                 exists: 1
               });
             } else {
