@@ -5,7 +5,7 @@ const glob = require('glob');
 const concat = require('concat-files');
 const path = require('path');
 const bytes = require('bytes');
-const async = require('async'); // <--- TEMP hasta migrar async/await
+const async = require('async');
 
 var Execution = global.ExecutionClass;
 
@@ -21,6 +21,7 @@ class filesystemExecutor extends Execution {
     let operation = params.operation;
     let inputPath = params.path;
     let insensitiveCase = params.insensitiveCase;
+    let options = params.options;
   
     /**
      * Avaliable operations
@@ -228,6 +229,29 @@ class filesystemExecutor extends Execution {
       }
     }
 
+    function _compareValues(key, order='desc') {
+      return function(a, b) {
+        if(!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+          return 0;
+        }
+
+        const varA = (typeof a[key] === 'string') ?
+            a[key].toUpperCase() : a[key];
+        const varB = (typeof b[key] === 'string') ?
+            b[key].toUpperCase() : b[key];
+
+        let comparison = 0;
+        if (varA > varB) {
+          comparison = 1;
+        } else if (varA < varB) {
+          comparison = -1;
+        }
+        return (
+            (order === 'desc') ? (comparison * -1) : comparison
+        );
+      };
+    }
+
     function _endError(err, messageLog) {
       let endOptions = {};
       endOptions.end = 'error';
@@ -255,6 +279,13 @@ class filesystemExecutor extends Execution {
         endOptions.extra_output.first_match_size  = res[0].size;
         endOptions.extra_output.first_match_sizeH  = res[0].sizeH;
       }
+
+      // if it's a sortable result operation, will do it if defined in params
+      // (by selected attribute and order direction)
+      if (options && options.orderBy) {
+        endOptions.data_output.sort(_compareValues(options.orderBy.attribute, options.orderBy.order));
+      }
+
       _this.end(endOptions);
     }
   }
