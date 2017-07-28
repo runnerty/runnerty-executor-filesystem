@@ -263,6 +263,12 @@ class filesystemExecutor extends Execution {
     }
 
     function _endSuccess(res) {
+      // if it's a sortable result operation, will do it if defined in params
+      // (by selected attribute and order direction)
+      if (res && options && options.orderBy) {
+        res.data_output.sort(_compareValues(options.orderBy.attribute, options.orderBy.order));
+      }
+
       let endOptions = {};
       endOptions.extra_output = {};
       endOptions.data_output = res;
@@ -278,12 +284,6 @@ class filesystemExecutor extends Execution {
         endOptions.extra_output.first_match_ctime  = res[0].ctime;
         endOptions.extra_output.first_match_size  = res[0].size;
         endOptions.extra_output.first_match_sizeH  = res[0].sizeH;
-      }
-
-      // if it's a sortable result operation, will do it if defined in params
-      // (by selected attribute and order direction)
-      if (options && options.orderBy) {
-        endOptions.data_output.sort(_compareValues(options.orderBy.attribute, options.orderBy.order));
       }
 
       _this.end(endOptions);
