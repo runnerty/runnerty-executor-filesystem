@@ -29,7 +29,7 @@
           "type": "string"
         },
         "path": {
-          "type": "string"
+          "type": ["string","array"]
         }
       }
     }

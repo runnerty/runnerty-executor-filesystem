@@ -18,6 +18,7 @@
   "rules": {
     "indent": ["error", 2, {"SwitchCase":1}],
     "default-case": "error",
+    "no-case-declarations": 0,
     "linebreak-style": [
       "error",
       "unix"
