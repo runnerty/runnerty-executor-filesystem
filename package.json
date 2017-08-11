@@ -1,6 +1,6 @@
 {
   "name": "@runnerty/executor-filesystem",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "description": "Runnerty module: filesystem executor",
   "main": "index.js",
   "dependencies": {
@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Coderty/runnerty-executor-filesystem.git"
+    "url": "git+https://github.com/runnerty/executor-filesystem.git"
   },
   "keywords": [
     "runnerty",
@@ -24,7 +24,7 @@
     "filesystem"
   ],
   "bugs": {
-    "url": "https://github.com/Coderty/runnerty-executor-filesystem/issues"
+    "url": "https://github.com/runnerty/executor-filesystem/issues"
   },
-  "homepage": "https://github.com/Coderty/runnerty-executor-filesystem#readme"
+  "homepage": "https://github.com/runnerty/executor-filesystem#readme"
 }
