@@ -51,8 +51,9 @@ class fileSystemExecutor extends Execution {
         _ls(inputPath, attributesOrderBy, orderAsc, insensitiveCase, isSubDir)
           .then(res => {
             endOptions.data_output = res;
-            const firstRow = res[0];
+
             if (res.length) {
+              let firstRow = res[0];
               endOptions.extra_output = {
                 first_match_exists: firstRow.exists,
                 first_match_file: firstRow.file,
@@ -67,6 +68,7 @@ class fileSystemExecutor extends Execution {
                 first_match_sizeH: firstRow.sizeH
               };
             }
+
             _this.end(endOptions);
           })
           .catch(err => {
@@ -148,7 +150,18 @@ function _ls(paths, orders = [], orderAsc = true, insensitiveCase = true, isSubD
           });
       })
       .catch(err =>{
-        reject(err);
+        if (paths.length === 1 && isSubDir){
+          const res = [{
+            file: paths[0].split(path.sep).pop(),
+            path: paths[0],
+            exists: 0
+          }];
+          resolve(res);
+        }else{
+          reject(err);
+        }
+
+        //reject(err);
       });
   });
 }
@@ -243,10 +256,19 @@ function _readdirAsync(path) {
 function lsAsync(file, isSubDir = false) {
   return new Promise(function (resolve, reject) {
     fs.stat(file, (err, stat) => {
+      let res;
       if (err) {
-        reject(err);
+        if (isSubDir){
+          res = {
+            file: file.split(path.sep).pop(),
+            path: file,
+            exists: 0
+          };
+          resolve(res);
+        }else{
+          reject(err);
+        }
       } else {
-        let res;
         if (stat.isFile() || (stat.isDirectory() && isSubDir)) {
           res = {
             file: file.split(path.sep).pop(),
