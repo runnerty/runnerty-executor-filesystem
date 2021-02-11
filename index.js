@@ -3,14 +3,14 @@
 const fs = require("fs-extra");
 const bytes = require("bytes");
 const path = require("path");
-const glob = require("glob");
 const lodash = require("lodash");
-const {promisify} = require("util");
+const { promisify } = require("util");
+const glob = require("glob");
 const globAsync = promisify(glob);
 
-var Execution = global.ExecutionClass;
+const Executor = require("@runnerty/module-core").Executor;
 
-class fileSystemExecutor extends Execution {
+class fileSystemExecutor extends Executor {
   constructor(process) {
     super(process);
   }
@@ -34,22 +34,23 @@ class fileSystemExecutor extends Execution {
         let attributesOrderBy = [];
         let orderAsc = true;
 
-        if(options.orderBy){
+        if (options.orderBy) {
           if (options.orderBy.attribute.constructor !== Array) {
             options.orderBy.attribute = [options.orderBy.attribute];
           }
           attributesOrderBy = options.orderBy.attribute;
-          if (options.orderBy.order){
-            if (options.orderBy.order === "desc"){
+          if (options.orderBy.order) {
+            if (options.orderBy.order === "desc") {
               orderAsc = false;
             }
           }
         }
 
-        const isSubDir = (operation === "stat");
+        const isSubDir = operation === "stat";
 
         _ls(inputPath, attributesOrderBy, orderAsc, insensitiveCase, isSubDir)
-          .then(res => {
+          .then((res) => {
+            console.log(res);
             endOptions.data_output = res;
 
             if (res.length) {
@@ -65,13 +66,15 @@ class fileSystemExecutor extends Execution {
                 first_match_mtime: firstRow.mtime,
                 first_match_ctime: firstRow.ctime,
                 first_match_size: firstRow.size,
-                first_match_sizeH: firstRow.sizeH
+                first_match_sizeH: firstRow.sizeH,
               };
+              endOptions.messageLog = "yaestaria";
             }
 
+            console.log({ endOptions });
             _this.end(endOptions);
           })
-          .catch(err => {
+          .catch((err) => {
             endOptions.data_output = [];
             endOptions.extra_output = {
               first_match_exists: "",
@@ -84,7 +87,7 @@ class fileSystemExecutor extends Execution {
               first_match_mtime: "",
               first_match_ctime: "",
               first_match_size: "",
-              first_match_sizeH: ""
+              first_match_sizeH: "",
             };
             endOptions.end = "error";
             endOptions.messageLog = err;
@@ -94,12 +97,12 @@ class fileSystemExecutor extends Execution {
         break;
       case "mkdir":
         _mkdirs(inputPath)
-          .then(res =>{
+          .then((res) => {
             let endOptions = {};
             endOptions.data_output = res;
             _this.end(endOptions);
           })
-          .catch(err =>{
+          .catch((err) => {
             endOptions.end = "error";
             endOptions.messageLog = err;
             endOptions.err_output = err;
@@ -126,38 +129,45 @@ class fileSystemExecutor extends Execution {
  * @returns {Promise} - array:  stats results files and folders.
  * @private
  */
-function _ls(paths, orders = [], orderAsc = true, insensitiveCase = true, isSubDir = true) {
-  return new Promise((resolve,reject) => {
+function _ls(
+  paths,
+  orders = [],
+  orderAsc = true,
+  insensitiveCase = true,
+  isSubDir = true
+) {
+  return new Promise((resolve, reject) => {
     if (paths.constructor !== Array) {
       paths = [paths];
     }
 
     _curatePath(paths, insensitiveCase)
-      .then(curatePaths =>{
+      .then((curatePaths) => {
         let pathsLsPromises = [];
-        curatePaths.map(_path => {
+        curatePaths.map((_path) => {
           // If _ls paths input is the same that _curatePath output is not a curate path, return content.
           if (paths.indexOf(_path) !== -1) isSubDir = false;
           pathsLsPromises.push(lsAsync(_path, isSubDir));
         });
 
-        Promise.all(pathsLsPromises)
-          .then(values => {
-            let res = [].concat(...values);
-            if (orders.length) res = lodash.sortBy(res, orders);
-            if (!orderAsc) res = res.reverse();
-            resolve(res);
-          });
-      })
-      .catch(err =>{
-        if (paths.length === 1 && isSubDir){
-          const res = [{
-            file: paths[0].split(path.sep).pop(),
-            path: paths[0],
-            exists: 0
-          }];
+        Promise.all(pathsLsPromises).then((values) => {
+          let res = [].concat(...values);
+          if (orders.length) res = lodash.sortBy(res, orders);
+          if (!orderAsc) res = res.reverse();
           resolve(res);
-        }else{
+        });
+      })
+      .catch((err) => {
+        if (paths.length === 1 && isSubDir) {
+          const res = [
+            {
+              file: paths[0].split(path.sep).pop(),
+              path: paths[0],
+              exists: 0,
+            },
+          ];
+          resolve(res);
+        } else {
           reject(err);
         }
 
@@ -174,22 +184,22 @@ function _ls(paths, orders = [], orderAsc = true, insensitiveCase = true, isSubD
  * @private
  */
 function _mkdirs(paths) {
-  return new Promise((resolve,reject) => {
+  return new Promise((resolve, reject) => {
     if (paths.constructor !== Array) {
       paths = [paths];
     }
 
     let pathsEnsureDirPromises = [];
-    paths.map(_path => {
+    paths.map((_path) => {
       pathsEnsureDirPromises.push(fs.ensureDir(_path));
     });
 
     Promise.all(pathsEnsureDirPromises)
-      .then(values => {
+      .then((values) => {
         let res = [].concat(...values);
         resolve(res);
       })
-      .catch(err => {
+      .catch((err) => {
         reject(err);
       });
   });
@@ -202,27 +212,15 @@ function _mkdirs(paths) {
  * @returns {Promise} - array
  * @private
  */
-function _curatePath(paths, insensitiveCase = true) {
-  return new Promise((resolve,reject) => {
-    if (paths.constructor !== Array) {
-      paths = [paths];
-    }
+async function _curatePath(paths, insensitiveCase = true) {
+  const resolvedPaths = [];
 
-    let pathsGlobPromises = [];
-    paths.map(_path => {
-      pathsGlobPromises.push(globAsync(_path, {nocase: insensitiveCase}));
-    });
+  for (let globbedPath of paths) {
+    const resolvedPath = await globAsync(globbedPath, insensitiveCase);
+    resolvedPaths.push(...resolvedPath);
+  }
 
-    Promise.all(pathsGlobPromises)
-      .then(values => {
-        const res = [].concat(...values);
-        if (res.length){
-          resolve(res);
-        }else{
-          reject("No results found for indicated paths");
-        }
-      });
-  });
+  return resolvedPaths;
 }
 
 /**
@@ -258,14 +256,14 @@ function lsAsync(file, isSubDir = false) {
     fs.stat(file, (err, stat) => {
       let res;
       if (err) {
-        if (isSubDir){
+        if (isSubDir) {
           res = {
             file: file.split(path.sep).pop(),
             path: file,
-            exists: 0
+            exists: 0,
           };
           resolve(res);
-        }else{
+        } else {
           reject(err);
         }
       } else {
@@ -281,27 +279,26 @@ function lsAsync(file, isSubDir = false) {
             ctime: stat.ctime,
             size: stat.size,
             sizeH: bytes(stat.size),
-            isFile: stat.isFile()?1:0,
-            isDirectory: stat.isDirectory()?1:0,
-            exists: 1
+            isFile: stat.isFile() ? 1 : 0,
+            isDirectory: stat.isDirectory() ? 1 : 0,
+            exists: 1,
           };
           resolve(res);
         } else {
           if (stat.isDirectory()) {
             _readdirAsync(file)
-              .then(files =>{
+              .then((files) => {
                 let resPromises = [];
-                files.map(f => {
+                files.map((f) => {
                   resPromises.push(lsAsync(path.join(file, f), true));
                 });
 
-                Promise.all(resPromises)
-                  .then(res => {
-                    res = res.filter(Boolean);
-                    resolve(res);
-                  });
+                Promise.all(resPromises).then((res) => {
+                  res = res.filter(Boolean);
+                  resolve(res);
+                });
               })
-              .catch(err => {
+              .catch((err) => {
                 reject(err);
               });
           } else {

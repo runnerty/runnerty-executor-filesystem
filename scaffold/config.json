@@ -1,0 +1,8 @@
+{
+  "executors": [
+    {
+      "id": "filesystem_default",
+      "type": "@runnerty-executor-filesystem"
+    }
+  ]
+}
