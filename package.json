@@ -3,24 +3,11 @@
   "version": "3.0.0",
   "description": "Runnerty module: filesystem executor",
   "main": "index.js",
-  "dependencies": {
-    "@runnerty/module-core": "~3.0.3",
-    "bytes": "^3.1.0",
-    "fs-extra": "^9.1.0",
-    "glob": "^7.1.6",
-    "lodash": "^4.17.20"
-  },
-  "devDependencies": {
-    "eslint": "^7.19.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "prettier": "^2.2.1"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint '**/*.js' && prettier --check '**'"
   },
-  "author": "coderty",
+  "author": "Runnerty Tech",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -34,5 +21,18 @@
   "bugs": {
     "url": "https://github.com/runnerty/executor-filesystem/issues"
   },
-  "homepage": "https://github.com/runnerty/executor-filesystem#readme"
+  "homepage": "https://github.com/runnerty/executor-filesystem#readme",
+  "dependencies": {
+    "@runnerty/module-core": "~3.0.4",
+    "bytes": "~3.1.0",
+    "fs-extra": "~9.1.0",
+    "glob": "~7.1.6",
+    "lodash": "~4.17.20"
+  },
+  "devDependencies": {
+    "eslint": "^7.19.0",
+    "eslint-config-prettier": "^7.2.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1"
+  }
 }

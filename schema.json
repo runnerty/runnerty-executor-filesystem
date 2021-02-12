@@ -4,10 +4,7 @@
   "definitions": {
     "config": {
       "type": "object",
-      "required": [
-        "id",
-        "type"
-      ],
+      "required": ["id", "type"],
       "properties": {
         "id": {
           "type": "string"
@@ -20,16 +17,13 @@
     },
     "params": {
       "type": "object",
-      "required": [
-        "operation",
-        "path"
-      ],
+      "required": ["operation", "path"],
       "properties": {
         "operation": {
           "type": "string"
         },
         "path": {
-          "type": ["string","array"]
+          "type": ["string", "array"]
         }
       }
     }

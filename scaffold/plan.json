@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/runnerty/schemas/master/schemas/3.0/plan.json",
+  "chains": [
+    {
+      "id": "CHAIN_FILESYSTEM_SAMPLES",
+      "name": "FILESYSTEM module example chain",
+      "defaults_processes": {
+        "notifications": {
+          "on_start": [
+            {
+              "id": "console_default",
+              "message": "@GETDATE('YYYY-MM-DD HH:mm:ss') START: PROCESS @GV(PROCESS_ID)"
+            }
+          ],
+          "on_fail": [
+            {
+              "id": "console_default",
+              "message": "@GETDATE('YYYY-MM-DD HH:mm:ss') ERROR: PROCESS @GV(PROCESS_ID):\n@GV(PROCESS_EXEC_ERR_OUTPUT)",
+              "mode": "error"
+            }
+          ],
+          "on_end": [
+            {
+              "id": "console_default",
+              "message": "@GETDATE('YYYY-MM-DD HH:mm:ss') END: PROCESS @GV(PROCESS_ID) - @GV(PROCESS_EXEC_DATA_OUTPUT)"
+            }
+          ]
+        }
+      },
+      "processes": [
+        {
+          "id": "FILESYSTEM_STAT_SAMPLE",
+          "name": "FILESYSTEM STAT SIMPLE",
+          "exec": {
+            "id": "filesystem_default",
+            "path": "./filesystem_samples/*.log",
+            "operation": "stat"
+          }
+        },
+        {
+          "id": "FILESYSTEM_LS_SAMPLE",
+          "name": "FILESYSTEM LS SIMPLE",
+          "exec": {
+            "id": "filesystem_default",
+            "path": [
+              "./filesystem_samples/*.log",
+              "./filesystem_samples/*.zip"
+            ],
+            "operation": "ls",
+            "options": {
+              "orderBy": { "attribute": ["size", "file"], "order": "desc" }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
