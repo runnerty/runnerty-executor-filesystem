@@ -1,13 +1,10 @@
 "use strict";
 
-const fs = require("fs-extra");
+const Executor = require("@runnerty/module-core").Executor;
 
 const { resolveGlobPaths } = require("./lib/paths");
-
 const { ls } = require("./operations/ls.js");
 const { mkdir } = require("./operations/mkdir.js");
-
-const Executor = require("@runnerty/module-core").Executor;
 
 class fileSystemExecutor extends Executor {
   constructor(process) {
@@ -24,11 +21,6 @@ class fileSystemExecutor extends Executor {
 
     const inputPathsMatch = await resolveGlobPaths(inputPath, insensitiveCase);
 
-    /**
-     * Avaliable operations
-     * - ls
-     * - mkdir
-     */
     switch (operation) {
       case "ls":
         let attributesOrderBy = [];
