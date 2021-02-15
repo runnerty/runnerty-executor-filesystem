@@ -1,4 +1,4 @@
-const fs = require("fs/promises");
+const fs = require('fs/promises');
 
 async function chmod(paths, permissionsMode) {
   for (const path of paths) {

@@ -1,4 +1,4 @@
-const fs = require("fs/promises");
+const fs = require('fs/promises');
 
 async function symlink(srcPath, dstPath) {
   await fs.symlink(srcPath, dstPath);

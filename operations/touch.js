@@ -1,4 +1,4 @@
-const fs = require("fs-extra");
+const fs = require('fs-extra');
 
 async function touch(paths) {
   for (const fromPath of paths) {
