@@ -1,4 +1,4 @@
-const fs = require("fs-extra");
+const fs = require('fs-extra');
 
 /**
  * Return array with all dirs created or reject with error.
@@ -13,17 +13,17 @@ function mkdir(paths) {
       paths = [paths];
     }
 
-    let pathsEnsureDirPromises = [];
-    paths.map((_path) => {
+    const pathsEnsureDirPromises = [];
+    paths.map(_path => {
       pathsEnsureDirPromises.push(fs.ensureDir(_path));
     });
 
     Promise.all(pathsEnsureDirPromises)
-      .then((values) => {
-        let res = [].concat(...values);
+      .then(values => {
+        const res = [].concat(...values);
         resolve(res);
       })
-      .catch((err) => {
+      .catch(err => {
         reject(err);
       });
   });

@@ -24,6 +24,18 @@
         },
         "path": {
           "type": ["string", "array"]
+        },
+        "destinationPath": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "number"
+        },
+        "guid": {
+          "type": "number"
+        },
+        "permissionMode": {
+          "type": "string"
         }
       }
     }

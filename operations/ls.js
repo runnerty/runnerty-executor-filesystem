@@ -1,7 +1,7 @@
-const fs = require("fs-extra");
-const bytes = require("bytes");
-const path = require("path");
-const lodash = require("lodash");
+const fs = require('fs-extra');
+const bytes = require('bytes');
+const path = require('path');
+const lodash = require('lodash');
 
 /**
  * Return array with all files and directories founds by paths indicates
@@ -20,28 +20,28 @@ function ls(paths, orders = [], orderAsc = true, isSubDir = true) {
       paths = [paths];
     }
 
-    let pathsLsPromises = [];
-    paths.map((_path) => {
+    const pathsLsPromises = [];
+    paths.map(_path => {
       // If _ls paths input is the same that _curatePath output is not a curate path, return content.
       if (paths.indexOf(_path) !== -1) isSubDir = false;
       pathsLsPromises.push(lsAsync(_path, isSubDir));
     });
 
     Promise.all(pathsLsPromises)
-      .then((values) => {
+      .then(values => {
         let res = [].concat(...values);
         if (orders?.length) res = lodash.sortBy(res, orders);
         if (!orderAsc) res = res.reverse();
         resolve(res);
       })
-      .catch((err) => {
+      .catch(err => {
         if (paths.length === 1 && isSubDir) {
           const res = [
             {
               file: paths[0].split(path.sep).pop(),
               path: paths[0],
-              exists: 0,
-            },
+              exists: 0
+            }
           ];
           resolve(res);
         } else {
@@ -58,7 +58,7 @@ function ls(paths, orders = [], orderAsc = true, isSubDir = true) {
  * @returns {Promise}
  */
 function lsAsync(file, isSubDir = false) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     fs.stat(file, (err, stat) => {
       let res;
       if (err) {
@@ -66,7 +66,7 @@ function lsAsync(file, isSubDir = false) {
           res = {
             file: file.split(path.sep).pop(),
             path: file,
-            exists: 0,
+            exists: 0
           };
           resolve(res);
         } else {
@@ -87,24 +87,24 @@ function lsAsync(file, isSubDir = false) {
             sizeH: bytes(stat.size),
             isFile: stat.isFile() ? 1 : 0,
             isDirectory: stat.isDirectory() ? 1 : 0,
-            exists: 1,
+            exists: 1
           };
           resolve(res);
         } else {
           if (stat.isDirectory()) {
             _readdirAsync(file)
-              .then((files) => {
-                let resPromises = [];
-                files.map((f) => {
+              .then(files => {
+                const resPromises = [];
+                files.map(f => {
                   resPromises.push(lsAsync(path.join(file, f), true));
                 });
 
-                Promise.all(resPromises).then((res) => {
+                Promise.all(resPromises).then(res => {
                   res = res.filter(Boolean);
                   resolve(res);
                 });
               })
-              .catch((err) => {
+              .catch(err => {
                 reject(err);
               });
           } else {
@@ -123,9 +123,9 @@ function lsAsync(file, isSubDir = false) {
  * @private
  */
 function _readdirAsync(path) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     if (path !== undefined) {
-      fs.readdir(path, function (err, list) {
+      fs.readdir(path, (err, list) => {
         if (err) {
           reject(err);
         } else {
@@ -133,7 +133,7 @@ function _readdirAsync(path) {
         }
       });
     } else {
-      reject("Undefined path");
+      reject('Undefined path');
     }
   });
 }

@@ -42,10 +42,7 @@
           "name": "FILESYSTEM LS SIMPLE",
           "exec": {
             "id": "filesystem_default",
-            "path": [
-              "./filesystem_samples/*.log",
-              "./filesystem_samples/*.zip"
-            ],
+            "path": ["./filesystem_samples/*.log", "./filesystem_samples/*.zip"],
             "operation": "ls",
             "options": {
               "orderBy": { "attribute": ["size", "file"], "order": "desc" }
