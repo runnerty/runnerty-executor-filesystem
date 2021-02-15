@@ -75,6 +75,12 @@ Add in [plan.json]:
 | stat      |             |        |
 | ls        |             |        |
 | mkdir     |             |        |
+| mv        |             |        |
+| rm        |             |        |
+| touch     |             |        |
+| chown     |             |        |
+| chmod     |             |        |
+| symlink   |             |        |
 
 #### Results output
 
