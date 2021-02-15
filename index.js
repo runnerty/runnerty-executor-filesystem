@@ -4,7 +4,13 @@ const Executor = require("@runnerty/module-core").Executor;
 
 const { resolveGlobPaths } = require("./lib/paths");
 const { ls } = require("./operations/ls.js");
+const { mv } = require("./operations/mv.js");
+const { rm } = require("./operations/rm.js");
 const { mkdir } = require("./operations/mkdir.js");
+const { touch } = require("./operations/touch.js");
+const { chown } = require("./operations/chown.js");
+const { chmod } = require("./operations/chmod.js");
+const { symlink } = require("./operations/symlink.js");
 
 class fileSystemExecutor extends Executor {
   constructor(process) {
@@ -12,17 +18,22 @@ class fileSystemExecutor extends Executor {
   }
 
   async exec(params) {
-    const _this = this;
     const operation = params.operation;
     const inputPath = params.path;
     const insensitiveCase = params.insensitiveCase || true;
-    const options = params.options || {};
-    let endOptions = {};
 
-    const inputPathsMatch = await resolveGlobPaths(inputPath, insensitiveCase);
+    const options = params.options || {};
+
+    let endOptions = {};
 
     switch (operation) {
       case "ls":
+        const inputPaths =
+          inputPath.constructor !== Array ? [inputPath] : inputPath;
+        const inputPathsMatch = await resolveGlobPaths(
+          inputPaths,
+          insensitiveCase
+        );
         let attributesOrderBy = [];
         let orderAsc = true;
 
@@ -64,19 +75,25 @@ class fileSystemExecutor extends Executor {
               first_match_sizeH: firstRow.sizeH,
             };
           }
-          _this.end(endOptions);
+          this.end(endOptions);
         } catch (err) {
           console.error(err);
           endOptions.end = "error";
           endOptions.messageLog = err;
           endOptions.err_output = err;
-          _this.end(endOptions);
+          this.end(endOptions);
         }
 
         break;
 
       case "stat":
         try {
+          const inputPaths =
+            inputPath.constructor !== Array ? [inputPath] : inputPath;
+          const inputPathsMatch = await resolveGlobPaths(
+            inputPaths,
+            insensitiveCase
+          );
           const lsResults = await ls(inputPathsMatch, null, null, true);
 
           endOptions.data_output = lsResults;
@@ -97,13 +114,13 @@ class fileSystemExecutor extends Executor {
               first_match_sizeH: firstRow.sizeH,
             };
           }
-          _this.end(endOptions);
+          this.end(endOptions);
         } catch (err) {
           console.error(err);
           endOptions.end = "error";
           endOptions.messageLog = err;
           endOptions.err_output = err;
-          _this.end(endOptions);
+          this.end(endOptions);
         }
 
         break;
@@ -112,22 +129,137 @@ class fileSystemExecutor extends Executor {
         try {
           const mkdirRes = await mkdir(inputPath);
           endOptions.data_output = mkdirRes;
-          _this.end(endOptions);
+          this.end(endOptions);
         } catch (err) {
           console.error(err);
           endOptions.end = "error";
           endOptions.messageLog = err;
           endOptions.err_output = err;
-          _this.end(endOptions);
+          this.end(endOptions);
         }
 
+        break;
+
+      case "mv":
+        try {
+          const inputPaths =
+            inputPath.constructor !== Array ? [inputPath] : inputPath;
+          const destinationPath = params.destinationPath;
+          const inputPathsMatch = await resolveGlobPaths(
+            inputPaths,
+            insensitiveCase
+          );
+          const mvRes = await mv(inputPathsMatch, destinationPath);
+          endOptions.data_output = mvRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
+        break;
+
+      case "rm":
+        try {
+          const inputPaths =
+            inputPath.constructor !== Array ? [inputPath] : inputPath;
+          const destinationPath = params.destinationPath;
+          const inputPathsMatch = await resolveGlobPaths(
+            inputPaths,
+            insensitiveCase
+          );
+          const rmRes = await rm(inputPathsMatch, destinationPath);
+          endOptions.data_output = rmRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
+        break;
+
+      case "touch":
+        try {
+          const touchRes = await touch(inputPath);
+          endOptions.data_output = touchRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
+        break;
+
+      case "chown":
+        try {
+          const inputPaths =
+            inputPath.constructor !== Array ? [inputPath] : inputPath;
+          const inputPathsMatch = await resolveGlobPaths(
+            inputPaths,
+            insensitiveCase
+          );
+          const uid = params.uid;
+          const guid = params.guid;
+
+          const chownRes = await chown(inputPathsMatch, uid, guid);
+          endOptions.data_output = chownRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
+        break;
+
+      case "chmod":
+        try {
+          const inputPaths =
+            inputPath.constructor !== Array ? [inputPath] : inputPath;
+          const permissionsMode = params.permissionsMode;
+          const inputPathsMatch = await resolveGlobPaths(
+            inputPaths,
+            insensitiveCase
+          );
+          const chmodRes = await chmod(inputPathsMatch, permissionsMode);
+          endOptions.data_output = chmodRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
+        break;
+
+      case "symlink":
+        try {
+          const destinationPath = params.destinationPath;
+          const symlinkRes = await symlink(inputPath, destinationPath);
+          endOptions.data_output = symlinkRes;
+          this.end(endOptions);
+        } catch (err) {
+          console.error(err);
+          endOptions.end = "error";
+          endOptions.messageLog = err;
+          endOptions.err_output = err;
+          this.end(endOptions);
+        }
         break;
 
       default:
         endOptions.end = "error";
         endOptions.messageLog = `Not method found for ${operation}`;
         endOptions.err_output = `Not method found for ${operation}`;
-        _this.end(endOptions);
+        this.end(endOptions);
     }
   }
 }
